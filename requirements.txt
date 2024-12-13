@@ -1,0 +1,4 @@
+markdown
+google-generativeai
+Flask
+Flask-Cors

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant IA pour Cours - Propulsé par LangChain</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.24.1/themes/prism.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.24.1/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.24.1/components/prism-python.min.js"></script>
+    <style>
+        /* Animations et effets personnalisés */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        }
+
+        /* Styles spécifiques pour le rendu du contenu */
+        .prose h2 {
+            color: #6a11cb;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .prose ul, .prose ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Effets de code */
+        pre[class*="language-"] {
+            border-radius: 0.5rem;
+            background-color: #f4f4f4;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <!-- En-tête LangChain -->
+    <header class="gradient-bg text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-extrabold tracking-tight animate-fade-in flex items-center justify-center">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/langchain.svg" alt="LangChain" class="h-12 mr-4">
+                Assistant IA pour Cours
+            </h1>
+            <p class="mt-3 text-xl opacity-80">
+                Génération intelligente de contenu pédagogique avec LangChain
+            </p>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="flex-grow container mx-auto px-4 py-8 grid md:grid-cols-2 gap-8">
+        <!-- Formulaire de génération -->
+        <section class="bg-white rounded-xl shadow-2xl p-8 hover-lift">
+            <form id="courseForm" class="space-y-6">
+                <div>
+                    <label for="subject" class="block text-lg font-semibold text-gray-700 mb-2">
+                        Sujet du cours
+                    </label>
+                    <input 
+                        type="text" 
+                        id="subject" 
+                        required 
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300"
+                        placeholder="Ex: Intelligence Artificielle, Développement Web, Machine Learning"
+                    >
+                </div>
+                
+                <div>
+                    <label for="contentType" class="block text-lg font-semibold text-gray-700 mb-2">
+                        Type de contenu
+                    </label>
+                    <select 
+                        id="contentType" 
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300"
+                    >
+                        <option value="cours">Plan de Cours Complet</option>
+                        <option value="exercices">Exercices Progressifs</option>
+                        <option value="quiz">Quiz d'Évaluation</option>
+                        <option value="resume">Résumé Synthétique</option>
+                        <option value="projet">Projet Pratique</option>
+                    </select>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="w-full bg-purple-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-purple-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+                >
+                    🚀 Générer le Contenu
+                </button>
+            </form>
+
+                <!-- Section Suggestions -->
+                <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+                    <h3 class="text-blue-800 font-bold mb-2">💡 Suggestions de Sujets</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200 suggestion-tag">IA Générative</span>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200 suggestion-tag">Développement Web</span>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200 suggestion-tag">Machine Learning</span>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200 suggestion-tag">Python Avancé</span>
+                    </div>
+                </div>
+        </section>
+
+        <!-- Conteneur de résultats -->
+        <section id="resultContainer" class="hidden">
+            <div class="bg-white rounded-xl shadow-2xl p-8 hover-lift animate-fade-in">
+                <div class="flex justify-between items-center mb-4 border-b-2 border-purple-200 pb-2">
+                    <h2 class="text-2xl font-bold text-purple-700">
+                        Résultat Généré
+                    </h2>
+                    <button id="copyButton" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition duration-300">
+                        📋 Copier
+                    </button>
+                </div>
+                <div id="result" class="prose max-w-none text-gray-800 overflow-auto max-h-[600px]">
+                    <!-- Contenu généré sera inséré ici -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pied de page -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>sAssistant IA pour Cours</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('courseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const subject = document.getElementById('subject').value;
+            const contentType = document.getElementById('contentType').value;
+            const resultContainer = document.getElementById('resultContainer');
+            const resultDiv = document.getElementById('result');
+            const copyButton = document.getElementById('copyButton');
+
+            try {
+                resultContainer.classList.remove('hidden');
+                resultDiv.innerHTML = `
+                    <div class="flex justify-center items-center">
+                        <svg class="animate-spin h-10 w-10 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="ml-3 text-purple-600">Génération en cours...</span>
+                    </div>
+                `;
+
+                const response = await axios.post('/generate', {
+                    subject: subject,
+                    type: contentType
+                });
+
+                resultDiv.innerHTML = response.data.content;
+                Prism.highlightAll(); // Coloration syntaxique pour le code
+
+                // Gestion du bouton de copie
+                copyButton.onclick = () => {
+                    navigator.clipboard.writeText(response.data.content.replace(/<[^>]*>/g, ''));
+                    copyButton.textContent = '✅ Copié !';
+                    setTimeout(() => {
+                        copyButton.textContent = '📋 Copier';
+                    }, 2000);
+                };
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">Erreur !</strong>
+                        <span class="block sm:inline">${error.message}</span>
+                    </div>
+                `;
+            }
+        });
+
+        // Gestion des tags de suggestion
+        document.querySelectorAll('.suggestion-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                document.getElementById('subject').value = tag.textContent;
+            });
+        });
+    </script>
+</body>
+</html>
